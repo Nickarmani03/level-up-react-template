@@ -14,21 +14,34 @@ export const EventProvider = (props) => {
             .then(res => res.json())
             .then(setEvents)
     }
-    const addEvent = event => {
+    const createEvent = event => {
         return fetch("http://localhost:8000/events", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Token ${localStorage.getItem("lu_token")}`
             },
             body: JSON.stringify(event)
         })
             .then(getEvents)
     }
 
+    
+
+    const joinEvent = eventId => {
+        return fetch(`http://localhost:8000/events/${ eventId }/signup`, {
+            method: "POST",
+            headers:{
+                "Authorization": `Token ${localStorage.getItem("lu_token")}`
+            }
+        })
+            .then(response => response.json())
+    }
+
     return (
         <EventContext.Provider value={
             {
-                events, getEvents, addEvent
+                events, getEvents, createEvent , joinEvent
             }
         }>
             {props.children}

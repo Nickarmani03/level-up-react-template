@@ -1,142 +1,121 @@
 import React, { useContext, useState, useEffect } from "react"
-import { EventContext } from "../events/EventProvider.js"
+import { GameContext } from "../game/GameProvider.js"
+import { EventContext } from "./EventProvider.js"
+import { useHistory } from "react-router-dom"
 
 
-
-export const EventForm = (props) => {
+export const EventForm = () => {
     // Use the required context providers for data
-    
-    const {  events, addEvent, updateEvent, getEvents } = useContext(EventContext)
+        
+    const { getEvents, createEvent } = useContext(EventContext)
 
-    // Component state
-    const [event, setEvent] = useState({})
+    const { games, getGames} = useContext(GameContext)
 
-    // Is there a a URL parameter??
-    const editMode = props.match.params.hasOwnProperty("event_id")  // true or false
+    const history = useHistory()
 
-    const handleControlledInputChange = (event) => {
-        /*
-            When changing a state object or array, always create a new one
-            and change state instead of modifying current one
-        */
-        const newEvent = Object.assign({}, event)          // Create copy
-        newEvent[event.target.name] = event.target.value    // Modify copy
-        setEvent(newEvent)                                 // Set copy as new state
-    }
+    // Component stat
+    const [currentEvent, setEvent] = useState({
 
-    /*
-        If there is a URL parameter, then the user has chosen to
-        edit an event.
-            1. Get the value of the URL parameter.
-            2. Use that `id` to find the event.
-            3. Update component state variable.
-    */
-    const getEventInEditMode = () => {
-        if (editMode) {
-            const event_id = parseInt(props.match.params.event_id)
-            const selectedEvent = events.find(a => a.id === event_id) || {}
-            setEvent(selectedEvent)
-        }
-    }
+        host: localStorage.getItem("lu_token"),
+        game: "",
+        date: "",
+        time: "",
+        description: "",
+        title: "",
+        attendees: []
+    })
 
-    // Get events from API when component initializes
+    useEffect(() => {
+        getGames()
+    }, [])
+
+
     useEffect(() => {
         getEvents()
-        }, [])
+    }, [])
 
-    // Once provider state is updated, determine the event (if edit)
-    useEffect(() => {
-        getEventInEditMode()
-    }, [events])
-
-
-    const constructNewEvent = () => {
-        const location_id = parseInt(event.location_id)
-
-        if (location_id === 0) {
-            window.alert("Please select a location")
-        } else {
-            if (editMode) {
-                // PUT
-                updateEvent({
-                    id: event.id,
-                    name: event.name,
-                    breed: event.breed,
-                    location_id: location_id,
-                    status: event.status,
-                    customer_id: parseInt(localStorage.getItem("kennel_customer"))
-                })
-                    .then(() => props.history.push("/events"))
-            } else {
-                // POST
-                addEvent({
-                    name: event.name,
-                    breed: event.breed,
-                    location_id: location_id,
-                    status: event.status,
-                    customer_id: parseInt(localStorage.getItem("kennel_customer"))
-                })
-                    .then(() => props.history.push("/events"))
-            }
-        }
+    const changeEventState = (event) => {
+        const newEventState = { ...currentEvent }
+        newEventState[event.target.name] = event.target.value
+        setEvent(newEventState)
     }
 
     return (
         <form className="EventForm">
-            <h2 className="EventForm__title">{editMode ? "Update event" : "Admit event"}</h2>
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="name">event name: </label>
-                    <input type="text" name="name" required autoFocus className="form-control"
-                        placeholder="event name"
-                        defaultValue={event.name}
-                        onChange={handleControlledInputChange}
-                    />
-                </div>
-            </fieldset>
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="breed">event breed: </label>
-                    <input type="text" name="breed" required className="form-control"
-                        placeholder="event breed"
-                        defaultValue={event.breed}
-                        onChange={handleControlledInputChange}
-                    />
-                </div>
-            </fieldset>
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="location_id">Location: </label>
-                    <select name="location_id" className="form-control"
-                        value={event.location_id}
-                        onChange={handleControlledInputChange}>
+            <h2 className="EventForm__title">Schedule New Event</h2>
 
-                        <option value="0">Select a location</option>
-                        {locations.map(e => (
-                            <option key={e.id} value={e.id}>
-                                {e.name}
-                            </option>
-                        ))}
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="gameId">Game: </label>
+                    <select name="game" className="form-control"
+                        value={currentEvent.game}
+                        onChange={changeEventState}>
+                        <option value="0">Select a game...</option>
+                        {games.map((e => {
+                                return <option value={e.id}>{e.name}</option>
+                            }))}
                     </select>
                 </div>
             </fieldset>
+
             <fieldset>
                 <div className="form-group">
-                    <label htmlFor="status">Treatments: </label>
-                    <textarea type="text" name="status" className="form-control"
-                        value={event.status}
-                        onChange={handleControlledInputChange}>
-                    </textarea>
+                    <label htmlFor="maker">Description: </label>
+                    <input type="text" name="description" required autoFocus className="form-control"
+                        value={currentEvent.description}
+                        onChange={changeEventState}
+                    />
                 </div>
             </fieldset>
+
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="maker">Title: </label>
+                    <input type="text" name="title" required autoFocus className="form-control"
+                        value={currentEvent.title}
+                        onChange={changeEventState}
+                    />
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="maker">Date: </label>
+                    <input type="date" name="date" required autoFocus className="form-control"
+                        value={currentEvent.date}
+                        onChange={changeEventState}
+                    />
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="maker">Time: </label>
+                    <input type="time" name="time" required autoFocus className="form-control"
+                        value={currentEvent.time}
+                        onChange={changeEventState}
+                    />
+                </div>
+            </fieldset>
+            
             <button type="submit"
-                onClick={evt => {
-                    evt.preventDefault()
-                    constructNewEvent()
+                onClick={eve => {
+                    // Prevent form from being submitted
+                    eve.preventDefault()
+
+                    const event = {
+                        game: currentEvent.game,
+                        date: currentEvent.date,
+                        time: currentEvent.time,
+                        description: currentEvent.description,
+                        title: currentEvent.title,
+                    }
+
+                    // Send POST request to your API
+                    createEvent(event)
+                        .then(() => history.push("/events"))
                 }}
-                className="btn btn-primary">
-                {editMode ? "Save Updates" : "Make Reservation"}
-            </button>
+                className="btn btn-primary">Create Event</button>
         </form>
     )
 }

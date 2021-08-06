@@ -26,7 +26,7 @@ export const GameProvider = (props) => {
         .then(setGameTypes)
     }
 
-    const addGame = game => {
+    const createGame = game => {
         return fetch("http://localhost:8000/games", {
             method: "POST",
             headers:{
@@ -40,7 +40,7 @@ export const GameProvider = (props) => {
 
     return (
         <GameContext.Provider value={{  games, getGames, gameTypes,
-            getGameTypes, addGame }} >
+            getGameTypes, createGame }} >
             {props.children}
         </GameContext.Provider>
     )

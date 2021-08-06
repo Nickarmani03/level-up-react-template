@@ -4,8 +4,11 @@ import "./NavBar.css"
 
 export const NavBar = (props) => {
     return (
+        // <img className="navbar__logo" src= "https://static.wixstatic.com/media/d60e07_497675d220c543ac84aed3cee4623333~mv2.png/v1/fill/w_224,h_128,al_c,q_85,usm_0.66_1.00_0.01/1610264030690_LevelUp%20copy%203.webp/">
+
         <ul className="navbar">
-            <li className="navbar__item">
+
+            <li className="navbar__item">                
             <Link className="nav-link" to="/"> Home</Link>
             </li>
             <li className="navbar__item">
