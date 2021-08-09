@@ -1,12 +1,12 @@
 import React, { useContext, useEffect } from "react"
 import { EventContext } from "./EventProvider.js"
 import { useHistory } from "react-router-dom"
-// import "./Events.css"
+import "../events/Event.css"
 
 export const EventList = () => {
     const history = useHistory()
     const { events, getEvents} = useContext(EventContext)
-    const {createEvent, joinEvent } = useContext(EventContext)
+    const { leaveEvent, joinEvent } = useContext(EventContext)
 
     useEffect(() => {
         getEvents()
@@ -31,9 +31,15 @@ export const EventList = () => {
                         <div>
                             {event.date} @ {event.time}
                         </div>
-                        <button className="btn btn-2"
-                                onClick={() => joinEvent(event.id)}
-                        >Join</button>
+                        {
+                            event.joined
+                                ? <button className="btn btn-3"
+                                    onClick={() => leaveEvent(event.id)}
+                                    >Leave</button>
+                                : <button className="btn btn-2"
+                                    onClick={() => joinEvent(event.id)}
+                                    >Join</button>
+                        }
                     </section>
                 })
             }
