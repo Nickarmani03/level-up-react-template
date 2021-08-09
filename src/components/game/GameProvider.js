@@ -22,7 +22,7 @@ export const GameProvider = (props) => {
                 "Authorization": `Token ${localStorage.getItem("lu_token")}`
             }
         })
-        .then(res => res.json())
+         .then(res => res.json()) //turn it into json
         .then(setGameTypes)
     }
 

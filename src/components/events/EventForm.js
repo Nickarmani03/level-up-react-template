@@ -2,14 +2,15 @@ import React, { useContext, useState, useEffect } from "react"
 import { GameContext } from "../game/GameProvider.js"
 import { EventContext } from "./EventProvider.js"
 import { useHistory } from "react-router-dom"
+import "../events/Event.css"
 
 
 export const EventForm = () => {
     // Use the required context providers for data
-        
+
     const { getEvents, createEvent } = useContext(EventContext)
 
-    const { games, getGames} = useContext(GameContext)
+    const { games, getGames } = useContext(GameContext)
 
     const history = useHistory()
 
@@ -25,18 +26,19 @@ export const EventForm = () => {
         attendees: []
     })
 
+    // Get all existing games from API
     useEffect(() => {
         getGames()
     }, [])
 
-
+    // Get all existing events from API
     useEffect(() => {
         getEvents()
     }, [])
 
-    const changeEventState = (event) => {
+    const changeEventState = (domEvent) => {
         const newEventState = { ...currentEvent }
-        newEventState[event.target.name] = event.target.value
+        newEventState[domEvent.target.name] = domEvent.target.value
         setEvent(newEventState)
     }
 
@@ -46,14 +48,24 @@ export const EventForm = () => {
 
             <fieldset>
                 <div className="form-group">
+                    <label htmlFor="maker">Title: </label>
+                    <input type="text" name="title" required autoFocus className="form-control"
+                        value={currentEvent.title}
+                        onChange={changeEventState}
+                    />
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div className="form-group">
                     <label htmlFor="gameId">Game: </label>
                     <select name="game" className="form-control"
                         value={currentEvent.game}
                         onChange={changeEventState}>
                         <option value="0">Select a game...</option>
                         {games.map((e => {
-                                return <option value={e.id}>{e.name}</option>
-                            }))}
+                            return <option key={e.id} value={e.id}>{e.name}</option>
+                        }))}
                     </select>
                 </div>
             </fieldset>
@@ -63,16 +75,6 @@ export const EventForm = () => {
                     <label htmlFor="maker">Description: </label>
                     <input type="text" name="description" required autoFocus className="form-control"
                         value={currentEvent.description}
-                        onChange={changeEventState}
-                    />
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="maker">Title: </label>
-                    <input type="text" name="title" required autoFocus className="form-control"
-                        value={currentEvent.title}
                         onChange={changeEventState}
                     />
                 </div>
@@ -97,7 +99,7 @@ export const EventForm = () => {
                     />
                 </div>
             </fieldset>
-            
+
             <button type="submit"
                 onClick={eve => {
                     // Prevent form from being submitted
@@ -115,7 +117,7 @@ export const EventForm = () => {
                     createEvent(event)
                         .then(() => history.push("/events"))
                 }}
-                className="btn btn-primary">Create Event</button>
+                className="btn btn-1"> Create Event </button>
         </form>
     )
 }
