@@ -1,16 +1,18 @@
 import React, { useContext, useState, useEffect } from "react"
 import { GameContext } from "./GameProvider"
-import { useHistory } from 'react-router'
+import { useHistory, useParams } from 'react-router'
 
-export const GameForm = () => {
+export const EditGameForm = () => {
     // Use the required context providers for data
 
-    const { createGame, getGameTypes, gameTypes } = useContext(GameContext)
+    const {  getGameTypes, gameTypes, editGame, getGameById } = useContext(GameContext)
 
     const history = useHistory()
 
+    const { gameId } = useParams();
+
     // Component state
-    const [currentGame, setGame] = useState({
+    const [currentGame, setCurrentGame] = useState({
 
         name: "",
         gameTypeId: 0,
@@ -25,13 +27,28 @@ export const GameForm = () => {
         getGameTypes()
     }, [])
 
+    useEffect(() => {
+		if (gameId) {
+			getGameById(gameId).then((game) => {
+				setCurrentGame({
+					id: parseInt(gameId),
+					name: game.name,
+					gameTypeId: game.game_type.id,
+                    description: game.description,
+                    numberOfPlayers: game.number_of_players,				
+					maker: game.maker,
+					
+				})
+			})
+		}
+	}, [gameId])
+
+
     const changeGameState = (event) => {
-        const newGame = { ...currentGame }// Create copy
-        newGame[event.target.name] = event.target.value// Modify copy
-        setGame(newGame)// Set copy as new Game state
+        const newGameState = { ...currentGame }// Create copy
+        newGameState[event.target.name] = event.target.value// Modify copy
+        setCurrentGame(newGameState)// Set copy as new Game state
     }
-
-
 
     return (
         <form className="gameForm">
@@ -50,15 +67,15 @@ export const GameForm = () => {
             <fieldset>
                 <div className="form-group">
                     <label htmlFor="title">Type of Game: </label>
-                    <select  type="select" name="gameTypeId" required autoFocus className="form-control" 
-                    value={currentGame.gameTypeId} onChange={changeGameState}>
+                    <select type="select" name="gameTypeId" required autoFocus className="form-control"
+                        value={currentGame.gameTypeId} onChange={changeGameState}>
                         <option value="0">Select a Game Type</option>
                         {gameTypes.map((gameType => {
-                                return <option key={gameType.id} value={gameType.id}>
-                                    {gameType.label}
-                                </option>
-                            }))}
-                        </select>
+                            return <option key={gameType.id} value={gameType.id}>
+                                {gameType.label}
+                            </option>
+                        }))}
+                    </select>
                 </div>
             </fieldset>
 
@@ -83,7 +100,7 @@ export const GameForm = () => {
                     />
                 </div>
             </fieldset>
-            
+
             <fieldset>
                 <div className="form-group">
                     <label htmlFor="title">Game Maker: </label>
@@ -94,24 +111,25 @@ export const GameForm = () => {
                     />
                 </div>
             </fieldset>
-            
-            <button type="submit"
-                onClick={(evt) => {
-                    // Prevents form from being submitted
-                    evt.preventDefault()
+            <button
+					type="submit"
+					onClick={(evt) => {
+						// Prevent form from being submitted
+						evt.preventDefault()
+                        
+						editGame({
 
-                    createGame({//whats being passed to the back end
-                        name: currentGame.name,
-                        gameTypeId: parseInt(currentGame.gameTypeId),
-                        description: currentGame.description,
-                        numberOfPlayers: parseInt(currentGame.numberOfPlayers),
-                        maker: currentGame.maker
-                    })
-                    // Send POST request to your API
-                    
-                    .then(() => history.push("/games"))
-                }}
-                className="btn btn-1"> Create Game </button>
+                            id: currentGame.id,
+							name: currentGame.name,
+							gameTypeId: parseInt(currentGame.gameTypeId),
+                            description: currentGame.description,
+                            numberOfPlayers: parseInt(currentGame.numberOfPlayers),
+							maker: currentGame.maker,
+							
+						}).then(() => history.push("/games"));
+					}}
+					className="btn btn-1"> Edit </button>
         </form>
     )
 }
+
